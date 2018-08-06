@@ -1,23 +1,35 @@
 package basecode;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class) // or Mockito.initMocks(AuthenticatorTest.class)
 public class AuthenticatorTest {
+
+    @Mock
+    private AuthenticatorInterface authenticatorMock; // needs MockitoJUnitRunner
+
+    @InjectMocks
+    private AuthenticatorService authenticator; // inject @Mock dependencies
 
     @Test
     public void testAuthentication() {
         AuthenticatorInterface authenticatorMock;
         AuthenticatorService authenticator;
-        String username = "Drezir";
-        String password = "333";
-
         authenticatorMock = Mockito.mock(AuthenticatorInterface.class);
         authenticator = new AuthenticatorService(authenticatorMock);
+
+        String username = "Drezir";
+        String password = "333";
 
         when(authenticatorMock.authenticateUser(username, password)).thenReturn(false);
 
@@ -49,5 +61,17 @@ public class AuthenticatorTest {
                 .thenThrow(new EmptyCredentialsException());
 
         authenticatorService.authenticate("", "");
+    }
+
+    @Test
+    public void testAuthenticationMockInjection() {
+        String username = "Drezir";
+        String password = "333";
+
+        when(authenticatorMock.authenticateUser(username, password))
+            .thenReturn(true);
+        boolean actual = authenticator.authenticate(username, password);
+
+        assertTrue(actual);
     }
 }
